@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
-const compareVersions = require('compare-versions');
+const { compare } = require('compare-versions');
 const readingTime = require('reading-time');
 const withPlugins = require('next-compose-plugins');
 const withVideos = require('next-videos');
@@ -11,48 +11,12 @@ const withTM = require('next-transpile-modules')(['@modulz/design-system']);
 
 module.exports = withPlugins([withTM, withOptimizedImages, withVideos], {
   // Next.js config
+  // ...
+
   async redirects() {
-    return [
-      {
-        source: '/primitives',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/primitives/docs/:slug*',
-        destination: '/docs/primitives/:slug*',
-        permanent: true,
-      },
-      {
-        source: '/docs/primitives',
-        destination: '/docs/primitives/overview/introduction',
-        permanent: false,
-      },
-      {
-        source: '/docs/primitives/utilities/aspect-ratio/:slug*',
-        destination: '/docs/primitives/components/aspect-ratio/:slug*',
-        permanent: false,
-      },
-      {
-        source: '/docs/primitives/utilities/label/:slug*',
-        destination: '/docs/primitives/components/label/:slug*',
-        permanent: false,
-      },
-      {
-        source: '/design/docs-system',
-        destination: '/design/docs-system/overview/introduction',
-        permanent: false,
-      },
-      {
-        source: '/docs/colors',
-        destination: '/docs/colors/getting-started/installation',
-        permanent: false,
-      },
-    ];
+    // ...
   },
 
-  // Generate URL rewrites for components and utilities
-  // So navigating to /tooltip rewrites to /tooltip/[latestVersion]
   async rewrites() {
     const DATA_PATH = path.join(__dirname, 'data');
 
@@ -72,7 +36,7 @@ module.exports = withPlugins([withTM, withOptimizedImages, withVideos], {
 
       const latest = Object.entries(components).reduce((acc, curr) => {
         const [name, versions] = curr;
-        const [latestVersion] = versions.sort(compareVersions).reverse();
+        const [latestVersion] = versions.sort((a, b) => compare(a, b)).reverse();
         acc[name] = latestVersion;
         return acc;
       }, {});
